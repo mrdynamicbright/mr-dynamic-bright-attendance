@@ -21,6 +21,8 @@ if app.config['SQLALCHEMY_DATABASE_URI'] and \
         )
 
 db.init_app(app)
+with app.app_context():
+    db.create_all()
 
 # ---------------- ROUTES ----------------
 
@@ -136,9 +138,8 @@ def export():
 # ---------------- INIT ----------------
 
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
     app.run(debug=True)
+
 
 @app.route("/create_employee")
 def create_employee():
