@@ -1,0 +1,8 @@
+flask
+flask_sqlalchemy
+psycopg2-binary
+gunicorn
+face_recognition
+opencv-python
+numpy
+pandas
