@@ -150,3 +150,28 @@ def create_employee():
     db.session.add(emp)
     db.session.commit()
     return "Employee Created"
+
+@app.route("/setup")
+def setup():
+
+    # Create Location
+    loc = Location(
+        id=1,
+        name="Main Office",
+        latitude=12.9716,     # Change to your real office latitude
+        longitude=77.5946,    # Change to your real office longitude
+        radius=200            # 200 meters allowed area
+    )
+    db.session.add(loc)
+
+    # Create Employee
+    emp = Employee(
+        id=213098,
+        name="Test Employee",
+        location_id=1
+    )
+    db.session.add(emp)
+
+    db.session.commit()
+
+    return "Setup Completed"
