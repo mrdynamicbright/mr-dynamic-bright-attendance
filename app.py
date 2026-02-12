@@ -139,3 +139,14 @@ if __name__ == "__main__":
     with app.app_context():
         db.create_all()
     app.run(debug=True)
+
+@app.route("/create_employee")
+def create_employee():
+    emp = Employee(
+        id=213098,
+        name="Test Employee",
+        location_id=1
+    )
+    db.session.add(emp)
+    db.session.commit()
+    return "Employee Created"
