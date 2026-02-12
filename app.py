@@ -1,12 +1,7 @@
 import os
-import io
-import base64
-import numpy as np
-import face_recognition
-import pandas as pd
-
 from flask import Flask, render_template, request, jsonify, send_file
 from datetime import datetime
+import pandas as pd
 
 from models import db, Employee, Location, Attendance
 from utils import is_within_radius, calculate_status
@@ -17,7 +12,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Fix postgres url issue (Render fix)
+# Fix postgres issue for Render
 if app.config['SQLALCHEMY_DATABASE_URI'] and \
    app.config['SQLALCHEMY_DATABASE_URI'].startswith("postgres://"):
     app.config['SQLALCHEMY_DATABASE_URI'] = \
@@ -26,18 +21,6 @@ if app.config['SQLALCHEMY_DATABASE_URI'] and \
         )
 
 db.init_app(app)
-
-UPLOAD_FOLDER = "static/uploads"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
-# ---------------- FACE MATCH ----------------
-
-def match_face(encoding):
-    employees = Employee.query.all()
-    for emp in employees:
-        if face_recognition.compare_faces([emp.face_encoding], encoding)[0]:
-            return emp
-    return None
 
 # ---------------- ROUTES ----------------
 
@@ -49,19 +32,13 @@ def index():
 def attendance():
     data = request.json
 
-    photo = base64.b64decode(data["photo"].split(",")[1])
+    employee_id = int(data["employee_id"])
     user_lat, user_lon = map(float, data["gps"].split(","))
     check_type = data["type"]
 
-    image = face_recognition.load_image_file(io.BytesIO(photo))
-    encodings = face_recognition.face_encodings(image)
-
-    if not encodings:
-        return jsonify({"error": "No face detected"})
-
-    emp = match_face(encodings[0])
+    emp = Employee.query.get(employee_id)
     if not emp:
-        return jsonify({"error": "Face not recognized"})
+        return jsonify({"error": "Invalid Employee ID"})
 
     location = Location.query.get(emp.location_id)
 
@@ -98,7 +75,6 @@ def attendance():
 
 @app.route("/mark_absent")
 def mark_absent():
-    today = datetime.now().date()
     employees = Employee.query.all()
 
     for emp in employees:

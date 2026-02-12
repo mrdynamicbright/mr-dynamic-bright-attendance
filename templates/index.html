@@ -4,7 +4,43 @@
     <title>MDB Attendance</title>
 </head>
 <body>
-    <h1>Mr Dynamic Bright Attendance System</h1>
-    <p>System Running Successfully</p>
+
+<h2>Mr Dynamic Bright Attendance</h2>
+
+<input type="number" id="emp_id" placeholder="Enter Employee ID">
+<br><br>
+<button onclick="checkIn()">Check In</button>
+<button onclick="checkOut()">Check Out</button>
+
+<p id="result"></p>
+
+<script>
+function sendAttendance(type) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+
+        let gps = position.coords.latitude + "," + position.coords.longitude;
+
+        fetch("/attendance", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                employee_id: document.getElementById("emp_id").value,
+                gps: gps,
+                type: type
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById("result").innerText =
+                data.success || data.error;
+        });
+
+    });
+}
+
+function checkIn() { sendAttendance("IN"); }
+function checkOut() { sendAttendance("OUT"); }
+</script>
+
 </body>
 </html>
