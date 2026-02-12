@@ -13,7 +13,6 @@ class Employee(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
     location_id = db.Column(db.Integer, db.ForeignKey('location.id'))
-    face_encoding = db.Column(db.PickleType)
 
 class Attendance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
